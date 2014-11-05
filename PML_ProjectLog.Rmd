@@ -1,0 +1,44 @@
+---
+title: Practical Machine Learning Study Report
+author: "Brian Davies"
+date: "04 November 2014"
+output: html_document
+---
+
+# Data Acquisition, cleanup, split and EDA
+
+```{r download and peek at two datasets, cache = TRUE}
+download.file( 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv',
+               destfile = 'pml_training.csv', method = 'curl' )
+download.file( 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv',
+               destfile = 'pml_testing.csv', method = 'curl' )
+trainSetFull <- read.csv('pml_training.csv', stringsAsFactors = FALSE )
+testSetFull <- read.csv('pml_training.csv', stringsAsFactors = FALSE )
+availTest <- goodCols <- colnames(testingSetFull)[(sapply(colnames(testingSetFull),function(cn){sum(is.na(testingSetFull[,cn]))}) == 0)][1:59]
+trainSetGood <- trainingSetFull[,c(goodCols,'classe')]
+sum(is.na(trainSetGood))
+trainSetGood$user_name <- factor(trainSetGood$user_name)
+trainSetGood$classe <- factor(trainSetGood$classe)
+```
+
+Remove vacuous fields (NA in prediction set) from training set
+
+Convert all numerical inputs to numeric
+
+Split into two
+
+Add dummy output variables
+
+EDA -- PCA of inputs
+
+EDA -- exploratory Logistic Regression
+
+# Predictor Design Criteria
+
+# Predictor 1 -- Simple Neural Net
+
+## Simple Neural Net Setup
+
+## Simple Neural Net Training
+
+## Simple Neural Net Selection
