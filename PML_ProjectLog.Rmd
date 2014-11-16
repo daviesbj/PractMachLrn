@@ -8,45 +8,42 @@ output: html_document
 # Data Acquisition, cleanup, split
 
 ```{r housekeeping}
+# rm(list=ls())
 set.seed(19610910)
-library(caret)
+library(caret); library(ggplot2)
 ```
-```{r download and peek at two datasets, cache = TRUE}
+```{r download and peek at two datasets, eval = FALSE}
 download.file( 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv',
                destfile = 'pml-training.csv', method = 'curl' )
 download.file( 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv',
                destfile = 'pml-testing.csv', method = 'curl' )
+```
+```{r load and partition data, cache = TRUE}
 inputSetFull <- read.csv('pml-training.csv', stringsAsFactors = FALSE )
 testSetFull <- read.csv('pml-testing.csv', stringsAsFactors = FALSE )
 availVars <- colnames(testSetFull)[(sapply(colnames(testSetFull),function(cn){sum(is.na(testSetFull[,cn]))}) == 0)][1:59]
 inputSet <- inputSetFull[,c(availVars,'classe')]
+inputSet$classe <- factor(inputSet$classe)
 sum(is.na(inputSet))
-inTrain <- createDataPartition(y = inputSet$classe, p=0.75, list = FALSE )
+inTrain <- createDataPartition( y=inputSet$classe, p=0.75, list = FALSE )
 trnSet <- inputSet[ inTrain, ]
 valSet <- inputSet[ -inTrain, ]
-```
-
-# EDA
-
-## PCA of inputs
-
-We extract the inputs only and do PCA on 'em...
-
-```{r PCA_on_inputs, cache = TRUE }
 inCols <- colnames(trnSet)[grep('_belt|_arm|_dumb|_forearm',colnames(trnSet))]
 inputsOnly <- trnSet[,inCols]
 ```
 
-Try robust PCA to avoid fractional weightings
+```{r PCA_on_inputs, cache = TRUE }
 
-EDA -- exploratory Logistic Regression
+```
 
-# Predictor Design Criteria
+# Classifier training and validation
 
-# Predictor 1 -- Simple Neural Net
+For each classifier, look at accuracy on the validation set `valSet`
 
-## Simple Neural Net Setup
+## Classification tree using all inputs
 
-## Simple Neural Net Training
+## Classification tree using proncipal component of inputs
 
-## Simple Neural Net Selection
+## Naive Bayes
+
+# Final choice of classifier
