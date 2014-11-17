@@ -29,21 +29,55 @@ inTrain <- createDataPartition( y=inputSet$classe, p=0.75, list = FALSE )
 trnSet <- inputSet[ inTrain, ]
 valSet <- inputSet[ -inTrain, ]
 inCols <- colnames(trnSet)[grep('_belt|_arm|_dumb|_forearm',colnames(trnSet))]
-inputsOnly <- trnSet[,inCols]
+trnIO <- data.frame( trnSet[,inCols], classe = trnSet$classe, row.names = NULL )
+valIO <- data.frame( valSet[,inCols], classe = valSet$classe, row.names = NULL )
 ```
 
-```{r PCA_on_inputs, cache = TRUE }
-
-```
+I have now divided my data into a training set (75%) and a validation set (25%)
+consisting of all numerical-valued inputs and the `classe` factor. It seems pretty
+obvious that I shouldn't use the `user_name` vairiable or any of the timestamps
+as predictors. Also, all the summary-statistic parms are only quoted once per
+timeslice, and aren't available in the testing dataset. That leaves us with
+52 predictor variables -- quite a lot, but not crazy. It will probably be worth
+taking proinciopal components at some point.
 
 # Classifier training and validation
 
-For each classifier, look at accuracy on the validation set `valSet`
+For industrial-trength use, I would hope for a prediction accuracy of __95%__
+meaning that I would expect to ientify `classe` correctly 95% of the time when I
+apply my trained predictor to the validation set `valIO`. For the purposes of
+this study, I will be happy with 90% accuracy.
+
+It seems that the caret `train()` function has a mechanism to search over a
+multidimensional grid of training options to search for the best overall
+predictor. At first, at least, I'm not going to try that (until I know that
+I can control it).
+
+## Naive Bayes
+
+Even for this one I found `train()` a bit too automatic. I wasn't able to
+find a way to get it to just train on the entire dataset -- I got a nasty
+error message when I tried the settings in the example in the Week 2 lecture. I
+had to do it with cross-validation and it insisted on trying with and
+without kernel smoothing, which I couldn't figure out how to turn off; I just
+wanted to use straight Gaussian regression, and kernel smoothing took ages.
+I still use valIO for my own validation pass at the end; `train()` selected
+the kernel-smoothed option, probably not surprising.
+
+```{r train_and_test_Naive_Bayes, cache = TRUE, warning = FALSE }
+modNB <- train( classe~. , data = trnIO, method = "nb",
+                trControl = trainControl( method = 'cv', number = 3 ) )
+modNB$bestTune
+predNB <- predict( modNB, valIO )
+confMatNB <- confusionMatrix( predNB, valIO$classe )
+confMatNB$table
+confMatNB$overall
+```
 
 ## Classification tree using all inputs
 
-## Classification tree using proncipal component of inputs
+## Classification tree using principal component of inputs
 
-## Naive Bayes
+
 
 # Final choice of classifier
