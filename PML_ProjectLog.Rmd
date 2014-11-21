@@ -102,4 +102,31 @@ __Accuracy of the First Tree Classifier =
 That last one really wasn't very good. Let's try another tree, but using
 the principal components of the inputs.
 
+```{r train_and_test_PCA_Tree, cache = TRUE, warning = FALSE }
+modTreePCA <- train( classe~. , data = trnIO, method = "rpart",
+                     preProcess = c( 'center', 'scale', 'pca' ) )
+predTreePCA <- predict( modTreePCA, valIO )
+confMatTreePCA <- confusionMatrix( predTreePCA, valIO$classe )
+confMatTreePCA$table
+confMatTreePCA$overall
+```
+
+__Accuracy of the PCA Tree Classifier =
+`r sprintf( '%.1f%s', confMatTreePCA$overall['Accuracy'] * 100, '%' )` __
+
+## Random Forest
+
+Even worse! Let's bring out the big guns.
+
+```{r train_and_test_Random_Forest, cache = TRUE, warning = FALSE }
+modRF <- train( classe~. , data = trnIO, method = "rf", prox = TRUE )
+predRF <- predict( modRF, valIO )
+confMatRF <- confusionMatrix( predRF, valIO$classe )
+confMatRF$table
+confMatRF$overall
+```
+
+__Accuracy of the Random Forest Classifier =
+`r sprintf( '%.1f%s', confMatRF$overall['Accuracy'] * 100, '%' )` __
+
 # Final choice of classifier
