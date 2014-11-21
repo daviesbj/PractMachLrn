@@ -10,7 +10,7 @@ output: html_document
 ```{r housekeeping}
 # rm(list=ls())
 set.seed(19610910)
-library(caret); library(ggplot2)
+library(caret); library(ggplot2); library(klaR); library(MASS)
 ```
 ```{r download and peek at two datasets, eval = FALSE}
 download.file( 'https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv',
@@ -25,7 +25,8 @@ availVars <- colnames(testSetFull)[(sapply(colnames(testSetFull),function(cn){su
 inputSet <- inputSetFull[,c(availVars,'classe')]
 inputSet$classe <- factor(inputSet$classe)
 sum(is.na(inputSet))
-inTrain <- createDataPartition( y=inputSet$classe, p=0.75, list = FALSE )
+trainFrac <- 0.75
+inTrain <- createDataPartition( y=inputSet$classe, p = trainFrac, list = FALSE )
 trnSet <- inputSet[ inTrain, ]
 valSet <- inputSet[ -inTrain, ]
 inCols <- colnames(trnSet)[grep('_belt|_arm|_dumb|_forearm',colnames(trnSet))]
@@ -33,18 +34,21 @@ trnIO <- data.frame( trnSet[,inCols], classe = trnSet$classe, row.names = NULL )
 valIO <- data.frame( valSet[,inCols], classe = valSet$classe, row.names = NULL )
 ```
 
-I have now divided my data into a training set (75%) and a validation set (25%)
+I have now divided my data into a training set
+(`r sprintf( '%d%s', trainFrac * 100, '%' )`)
+and a validation set
+(`r sprintf( '%d%s', (1 - trainFrac) * 100, '%' )`)
 consisting of all numerical-valued inputs and the `classe` factor. It seems pretty
-obvious that I shouldn't use the `user_name` vairiable or any of the timestamps
+obvious that I shouldn't use the `user_name` variable or any of the timestamps
 as predictors. Also, all the summary-statistic parms are only quoted once per
 timeslice, and aren't available in the testing dataset. That leaves us with
 52 predictor variables -- quite a lot, but not crazy. It will probably be worth
-taking proinciopal components at some point.
+taking principal components at some point.
 
 # Classifier training and validation
 
 For industrial-trength use, I would hope for a prediction accuracy of __95%__
-meaning that I would expect to ientify `classe` correctly 95% of the time when I
+meaning that I would expect to identify `classe` correctly 95% of the time when I
 apply my trained predictor to the validation set `valIO`. For the purposes of
 this study, I will be happy with 90% accuracy.
 
@@ -61,7 +65,7 @@ error message when I tried the settings in the example in the Week 2 lecture. I
 had to do it with cross-validation and it insisted on trying with and
 without kernel smoothing, which I couldn't figure out how to turn off; I just
 wanted to use straight Gaussian regression, and kernel smoothing took ages.
-I still use valIO for my own validation pass at the end; `train()` selected
+I still use `valIO` for my own validation pass at the end; `train()` selected
 the kernel-smoothed option, probably not surprising.
 
 ```{r train_and_test_Naive_Bayes, cache = TRUE, warning = FALSE }
@@ -74,10 +78,28 @@ confMatNB$table
 confMatNB$overall
 ```
 
+__Accuracy of the Naive Bayes Classifier =
+`r sprintf( '%.1f%s', confMatNB$overall['Accuracy'] * 100, '%' )` __
+
 ## Classification tree using all inputs
 
-## Classification tree using principal component of inputs
+Now that I've got the framework working, I'm going to try to use a tree
+classifier like in the lectures
 
+```{r train_and_test_Tree, cache = TRUE, warning = FALSE }
+modTree <- train( classe~. , data = trnIO, method = "rpart" )
+predTree <- predict( modTree, valIO )
+confMatTree <- confusionMatrix( predTree, valIO$classe )
+confMatTree$table
+confMatTree$overall
+```
 
+__Accuracy of the First Tree Classifier =
+`r sprintf( '%.1f%s', confMatTree$overall['Accuracy'] * 100, '%' )` __
+
+## Classification tree using principal components of inputs
+
+That last one really wasn't very good. Let's try another tree, but using
+the principal components of the inputs.
 
 # Final choice of classifier
