@@ -7,8 +7,9 @@ output: html_document
 
 # Data Acquisition, cleanup, split
 
+Basically following the instructions at https://class.coursera.org/predmachlearn-007/human_grading/view/courses/972608/assessments/4/submissions
+
 ```{r housekeeping}
-# rm(list=ls())
 set.seed(19610910)
 library(caret); library(ggplot2); library(klaR); library(MASS)
 ```
@@ -129,7 +130,8 @@ confMatRF$overall
 __Accuracy of the Random Forest Classifier =
 `r sprintf( '%.1f%s', confMatRF$overall['Accuracy'] * 100, '%' )` __
 
-That's __amazing__ -- better save a copy!
+That's __amazing__ -- just as well, given that it took about 5 hours
+to run on my high-end MacBook Pro. better save a copy!
 
 ```{r save_Random_Forest_Classifier, cache = TRUE }
 save( modRF, file = 'RandomForestClassifier.Rdata' )
@@ -137,7 +139,7 @@ save( modRF, file = 'RandomForestClassifier.Rdata' )
 
 # Conclusion -- choice of classifier
 
-Here's a summary of the results
+Here's a summary of the results again:
 
 Classifier    | Out of Sample Accuracy (%)
 --------------|---------------------------
@@ -146,4 +148,4 @@ Basic Tree    | `r sprintf( '%.1f%s', confMatTree$overall['Accuracy'] * 100, '%'
 Tree with PCA | `r sprintf( '%.1f%s', confMatTreePCA$overall['Accuracy'] * 100, '%' )`
 Random Forest | `r sprintf( '%.1f%s', confMatRF$overall['Accuracy'] * 100, '%' )`
 
-So the best one is obviously the Random Forest -- that's what I recommend to use
+__So the best one is obviously the Random Forest -- that's what I recommend to use__
