@@ -1,5 +1,5 @@
 ---
-title: Practical Machine Learning Study Report
+title: "Practical Machine Learning Study Report"
 author: "Brian Davies"
 date: "04 November 2014"
 output: html_document
