@@ -116,7 +116,7 @@ __Accuracy of the PCA Tree Classifier =
 
 ## Random Forest
 
-Even worse! Let's bring out the big guns.
+Let's bring out the big guns!
 
 ```{r train_and_test_Random_Forest, cache = TRUE, warning = FALSE }
 modRF <- train( classe~. , data = trnIO, method = "rf", prox = TRUE )
@@ -129,4 +129,21 @@ confMatRF$overall
 __Accuracy of the Random Forest Classifier =
 `r sprintf( '%.1f%s', confMatRF$overall['Accuracy'] * 100, '%' )` __
 
-# Final choice of classifier
+That's __amazing__ -- better save a copy!
+
+```{r save_Random_Forest_Classifier, cache = TRUE }
+save( modRF, file = 'RandomForestClassifier.Rdata' )
+```
+
+# Conclusion -- choice of classifier
+
+Here's a summary of the results
+
+Classifier    | Out of Sample Accuracy (%)
+--------------|---------------------------
+Naive Bayes   | `r sprintf( '%.1f%s', confMatNB$overall['Accuracy'] * 100, '%' )`
+Basic Tree    | `r sprintf( '%.1f%s', confMatTree$overall['Accuracy'] * 100, '%' )`
+Tree with PCA | `r sprintf( '%.1f%s', confMatTreePCA$overall['Accuracy'] * 100, '%' )`
+Random Forest | `r sprintf( '%.1f%s', confMatRF$overall['Accuracy'] * 100, '%' )`
+
+So the best one is obviously the Random Forest -- that's what I recommend to use
