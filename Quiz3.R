@@ -1,0 +1,6 @@
+library(AppliedPredictiveModeling)
+data(segmentationOriginal)
+library(caret)
+segTest <- subset(segmentationOriginal, Case == 'Test' )
+segTrain <- subset(segmentationOriginal, Case == 'Train' )
+set.seed(125)
